@@ -6,14 +6,13 @@
 /**
  * Propiedades do indicador
  */
-//Configuração das linas
 #property indicator_chart_window
-#property indicator_buffers 2
+#property indicator_buffers 10
 #property indicator_plots   1
-//
-#property indicator_label1  "Model indicator"
-#property indicator_type1   DRAW_COLOR_LINE
-#property indicator_color1  C'25,33,134'
+// cores
+#property indicator_label1  "ZigZag Line"
+#property indicator_type1   DRAW_COLOR_ZIGZAG
+#property indicator_color1  clrMediumSpringGreen, clrYellow
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  2
 
@@ -26,12 +25,15 @@
 #property version Version
 #property link Site
 #property icon Icon
-#property description Description01
-#property description Description02
-#property description Description03
-#property description Description04
-#property description Description07
-#property description Description08
+//- descrição
+#ifdef Description01 #property description Description01 #endif
+#ifdef Description02 #property description Description02 #endif
+#ifdef Description03 #property description Description03 #endif
+#ifdef Description04 #property description Description04 #endif
+#ifdef Description05 #property description Description05 #endif
+#ifdef Description06 #property description Description06 #endif
+#ifdef Description07 #property description Description07 #endif
+#ifdef Description08 #property description Description08 #endif
 
 // Classes globais
 CMain mainClass;

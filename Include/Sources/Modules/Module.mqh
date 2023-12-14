@@ -4,24 +4,27 @@
 //|                                         https://www.upcoding.net |
 //+------------------------------------------------------------------+
 
-
 #ifndef MODULE_INCLUDED
 #define MODULE_INCLUDED
+
+#include "Initializer/ModuleInitializer.mqh"
 
 // clang-format off
 class CModule
 {
-  protected:
-    // Inputs
-    virtual void StartInputs(){};
+  private:
+    // Initializer class
+    CModuleInitializer* classInitializer;
     
   private:
-    // First priority
-    //...
-    // Normal priority
-    //...
+    // Inputs loader
+    void StartInputs();
+    
+  private:
+    bool IsValidInitializer() { return (CheckPointer(classInitializer) != POINTER_INVALID); };
+    
   public:
-    CModule();
+    CModule(CModuleInitializer* initializer=NULL);
     ~CModule();
 
     // Methods
@@ -33,13 +36,23 @@ class CModule
 /**
  * Contrutores e Destrutores
  */
-CModule::CModule()
+CModule::CModule(CModuleInitializer* initializer = NULL)
+    : classInitializer(initializer)
 {
 }
 CModule::~CModule()
-{  
+{
 }
 
+/**
+ * Método de inicialização dos parâmetros quando necessário
+ */
+void CModule::StartInputs()
+{
+  if(IsValidInitializer())
+    {
+      classInitializer.Initializer();
+    }
+}
 
 #endif /* MODULE_INCLUDED */
-

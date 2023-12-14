@@ -12,20 +12,26 @@
 #include "Module.mqh"
 
 //- modulos
-// #include "Modules/TestModule.mqh"
+#include "Modules/BufferModule.mqh"
 
 // clang-format off
 class CModuleManager
 {
   private:
     CTableTemplate<CModule> modules;
-
+    
+  private:
+    // First priority
+    //...
+    // Normal priority
+    CBufferModule bufferModule;
+    
   public:
     CModuleManager();
     ~CModuleManager();
     
     // Pointers
-    //CTestModule* GetTestModulePointer() { return (GetPointer(cTestModule)); };
+    CBufferModule* GetBufferModulePointer() { return (GetPointer(bufferModule)); };
     
     // Methods
     bool Start();
@@ -50,7 +56,7 @@ class CModuleManager
 CModuleManager::CModuleManager()
 {
   // Modules
-  // modules.Add(GetTestModulePointer());
+  modules.Add(GetBufferModulePointer());
 }
 CModuleManager::~CModuleManager()
 {

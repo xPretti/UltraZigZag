@@ -1,3 +1,5 @@
+#include "../Defines/Rules.mqh"
+
 // Languages
 #ifdef language_PT
   #include "Languages/PT-BR/Inputs.mqh"

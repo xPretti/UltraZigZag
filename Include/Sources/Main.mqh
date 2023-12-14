@@ -21,7 +21,7 @@ class CMain : public CMainRefs
     CModuleManager moduleManager;
     
     //Classes
-    //..
+    CBufferManager* bufferManager;
     
   public:
     // References
@@ -58,6 +58,11 @@ class CMain : public CMainRefs
     void OnTrade() override;
     void OnTradeTransaction(const MqlTradeTransaction& trans, const MqlTradeRequest& request, const MqlTradeResult& result) override;
     void OnChartEvent(const int id, const long& lparam, const double& dparam, const string& sparam) override;
+  
+  private:
+    void Initializer();
+    void LateInitializer();
+    
 };
 // clang-format on
 
@@ -71,12 +76,32 @@ CMain::~CMain()
 {
 }
 
+/**
+ * Inicialização
+ */
+void CMain::Initializer()
+{
+  //References loader
+  bufferManager = GetModuleManagerRef().GetBufferModulePointer().GetBufferManagerPointer();
+  
+}
+// Inicialização tardia, chamada após tudo ser carregado corretamente
+void CMain::LateInitializer()
+{
+}
+
 // Events
 // Builders
 int CMain::OnStart()
 {
+  Initializer();
+  
   // Start modules
   bool sucessStart = moduleManager.Start();
+  if(sucessStart)
+    {
+      LateInitializer();
+    }
   return (sucessStart ? INIT_SUCCEEDED : INIT_FAILED);
 }
 void CMain::OnStop(const int reason)
@@ -102,6 +127,7 @@ void CMain::OnLateTimer()
 void CMain::OnCalculate(const int total, const int pos, const datetime& time[], const double& open[], const double& high[], const double& low[], const double& close[], const long& tick_volume[],
                         const long& volume[], const int& spread[])
 {
+  bufferManager.OnCalculate(total, pos, time, open, high, low, close, tick_volume, volume, spread);
 }
 // Others
 void CMain::OnError(int error)
