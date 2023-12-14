@@ -21,7 +21,7 @@ class CMain : public CMainRefs
     CModuleManager moduleManager;
     
     //Classes
-    CBufferManager* bufferManager;
+    CIndicatorManager* indicatorManager;
     
   public:
     // References
@@ -82,7 +82,7 @@ CMain::~CMain()
 void CMain::Initializer()
 {
   //References loader
-  bufferManager = GetModuleManagerRef().GetBufferModulePointer().GetBufferManagerPointer();
+  indicatorManager = GetModuleManagerRef().GetIndicatorModulePointer().GetIndicatorManagerPointer();
   
 }
 // Inicialização tardia, chamada após tudo ser carregado corretamente
@@ -127,7 +127,7 @@ void CMain::OnLateTimer()
 void CMain::OnCalculate(const int total, const int pos, const datetime& time[], const double& open[], const double& high[], const double& low[], const double& close[], const long& tick_volume[],
                         const long& volume[], const int& spread[])
 {
-  bufferManager.OnCalculate(total, pos, time, open, high, low, close, tick_volume, volume, spread);
+  indicatorManager.OnCalculate(total, pos, time, open, high, low, close, tick_volume, volume, spread);
 }
 // Others
 void CMain::OnError(int error)

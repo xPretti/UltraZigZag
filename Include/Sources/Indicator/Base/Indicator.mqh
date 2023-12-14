@@ -1,19 +1,19 @@
 //+------------------------------------------------------------------+
-//|                                                       Buffer.mqh |
+//|                                                    Indicator.mqh |
 //|                                        Copyright 2023, UpCoding. |
 //|                                         https://www.upcoding.net |
 //+------------------------------------------------------------------+
 
 
-#ifndef BUFFER_INCLUDED
-#define BUFFER_INCLUDED
+#ifndef INDICATOR_INCLUDED
+#define INDICATOR_INCLUDED
 
 // clang-format off
-class CBuffer
+class CIndicator
 {
   public:
-    CBuffer();
-    ~CBuffer();
+    CIndicator();
+    ~CIndicator();
     
     // Events
     virtual void OnStart() {};
@@ -26,13 +26,13 @@ class CBuffer
 /**
  * Contrutores e Destrutores
  */
-CBuffer::CBuffer()
+CIndicator::CIndicator()
 {
 }
-CBuffer::~CBuffer()
+CIndicator::~CIndicator()
 {  
 }
 
 
-#endif /* BUFFER_INCLUDED */
+#endif /* INDICATOR_INCLUDED */
 

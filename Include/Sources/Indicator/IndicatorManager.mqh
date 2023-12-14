@@ -1,34 +1,34 @@
 //+------------------------------------------------------------------+
-//|                                                BufferManager.mqh |
+//|                                             IndicatorManager.mqh |
 //|                                        Copyright 2023, UpCoding. |
 //|                                         https://www.upcoding.net |
 //+------------------------------------------------------------------+
 
-#ifndef BUFFERMANAGER_INCLUDED
-#define BUFFERMANAGER_INCLUDED
+#ifndef INDICATORMANAGER_INCLUDED
+#define INDICATORMANAGER_INCLUDED
 
 // Base
-#include "Base/Buffers.mqh"
+#include "Base/Indicators.mqh"
 
-// Buffers
-#include "ZigZagBuffer.mqh"
+// Indicators
+#include "ZigZagIndicator.mqh"
 
 // clang-format off
-class CBufferManager : public CBuffers
+class CIndicatorManager : public CIndicators
 {
   private:
-    // Buffers
-    CZigZagBuffer zigZag;
+    // Indicators
+    CZigZagIndicator zigZag;
 
   public:
-    CBufferManager();
-    ~CBufferManager();
+    CIndicatorManager();
+    ~CIndicatorManager();
     
     // Events
     void OnStart() override;
     
     // References
-    CZigZagBuffer* GetZigZagBuffer() { return (GetPointer(zigZag)); }; 
+    CZigZagIndicator* GetZigZagIndicator() { return (GetPointer(zigZag)); }; 
   
   private:
     void IndicatorConfig();
@@ -39,31 +39,31 @@ class CBufferManager : public CBuffers
 /**
  * Contrutores e Destrutores
  */
-CBufferManager::CBufferManager()
+CIndicatorManager::CIndicatorManager()
 {
-  Add(GetZigZagBuffer());
+  Add(GetZigZagIndicator());
 }
-CBufferManager::~CBufferManager()
+CIndicatorManager::~CIndicatorManager()
 {
 }
 
 /**
  * Implementação dos eventos
  */
-void CBufferManager::OnStart()
+void CIndicatorManager::OnStart()
 {
-  CBuffers::OnStart();
+  CIndicators::OnStart();
   IndicatorConfig();
 }
 
 /**
  * Configurações do inciador
  */
-void CBufferManager::IndicatorConfig()
+void CIndicatorManager::IndicatorConfig()
 {
   // Configs loader
   string indicatorName = StringFormat("UltraZigZag(%d)", zigZag.GetPeriod());
   IndicatorSetString(INDICATOR_SHORTNAME, indicatorName);
 }
 
-#endif /* BUFFERMANAGER_INCLUDED */
+#endif /* INDICATORMANAGER_INCLUDED */

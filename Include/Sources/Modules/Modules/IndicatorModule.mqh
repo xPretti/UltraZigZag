@@ -1,61 +1,61 @@
 //+------------------------------------------------------------------+
-//|                                                 BufferModule.mqh |
+//|                                                 IndicatorModule.mqh |
 //|                                        Copyright 2023, UpCoding. |
 //|                                         https://www.upcoding.net |
 //+------------------------------------------------------------------+
 
-#ifndef BUFFERMODULE_INCLUDED
-#define BUFFERMODULE_INCLUDED
+#ifndef INDICATORMODULE_INCLUDED
+#define INDICATORMODULE_INCLUDED
 
-#include "../Initializer/BufferModuleInitializer.mqh"
+#include "../Initializer/IndicatorModuleInitializer.mqh"
 #include "../Module.mqh"
 
 // clang-format off
-class CBufferModule : public CModule
+class CIndicatorModule : public CModule
 {
   private:
     // Initializer class
-    CBufferModuleInitializer initializer;
+    CIndicatorModuleInitializer initializer;
     
     // Classes
-    CBufferManager bufferManager;
+    CIndicatorManager bufferManager;
   
   public:
-    CBufferModule();
-    ~CBufferModule();
+    CIndicatorModule();
+    ~CIndicatorModule();
 
     // Methods
     bool Start() override;
     bool Stop() override;
     
     // References
-    CBufferManager* GetBufferManagerPointer() { return (GetPointer(bufferManager)); };
+    CIndicatorManager* GetIndicatorManagerPointer() { return (GetPointer(bufferManager)); };
 };
 // clang-format on
 
 /**
  * Contrutores e Destrutores
  */
-CBufferModule::CBufferModule()
-    : initializer(GetBufferManagerPointer()),
+CIndicatorModule::CIndicatorModule()
+    : initializer(GetIndicatorManagerPointer()),
       CModule(GetPointer(initializer))
 {
 }
-CBufferModule::~CBufferModule()
+CIndicatorModule::~CIndicatorModule()
 {
 }
 
 /**
  * Métodos de inicialização
  */
-bool CBufferModule::Start()
+bool CIndicatorModule::Start()
 {
   CModule::Start();
 
   bufferManager.OnStart();
   return (true);
 }
-bool CBufferModule::Stop()
+bool CIndicatorModule::Stop()
 {
   CModule::Stop();
 
@@ -63,4 +63,4 @@ bool CBufferModule::Stop()
   return (true);
 }
 
-#endif /* BUFFERMODULE_INCLUDED */
+#endif /* INDICATORMODULE_INCLUDED */

@@ -12,7 +12,7 @@
 #include "Module.mqh"
 
 //- modulos
-#include "Modules/BufferModule.mqh"
+#include "Modules/IndicatorModule.mqh"
 
 // clang-format off
 class CModuleManager
@@ -24,14 +24,14 @@ class CModuleManager
     // First priority
     //...
     // Normal priority
-    CBufferModule bufferModule;
+    CIndicatorModule indicatorModule;
     
   public:
     CModuleManager();
     ~CModuleManager();
     
     // Pointers
-    CBufferModule* GetBufferModulePointer() { return (GetPointer(bufferModule)); };
+    CIndicatorModule* GetIndicatorModulePointer() { return (GetPointer(indicatorModule)); };
     
     // Methods
     bool Start();
@@ -56,7 +56,7 @@ class CModuleManager
 CModuleManager::CModuleManager()
 {
   // Modules
-  modules.Add(GetBufferModulePointer());
+  modules.Add(GetIndicatorModulePointer());
 }
 CModuleManager::~CModuleManager()
 {

@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                      Buffers.mqh |
+//|                                                   Indicators.mqh |
 //|                                        Copyright 2023, UpCoding. |
 //|                                         https://www.upcoding.net |
 //+------------------------------------------------------------------+
@@ -8,18 +8,18 @@
 #define BUFFERS_INCLUDED
 
 #include "../../Databases/Tables/TableTemplate.mqh"
-#include "Buffer.mqh"
+#include "Indicator.mqh"
 
 // clang-format off
-class CBuffers
+class CIndicators
 {
   private:
-    // Buffers
-    CTableTemplate<CBuffer> buffers;
+    // Indicators
+    CTableTemplate<CIndicator> buffers;
 
   public:
-    CBuffers();
-    ~CBuffers();
+    CIndicators();
+    ~CIndicators();
     
     // Events
     virtual void OnStart();
@@ -28,7 +28,7 @@ class CBuffers
                      const long& tick_volume[], const long& volume[], const int& spread[]);
   
   protected:
-    bool Add(CBuffer *buffer) { return (buffers.Add(buffer)); };
+    bool Add(CIndicator *buffer) { return (buffers.Add(buffer)); };
   
   private:
     bool ValidSweep();
@@ -39,22 +39,22 @@ class CBuffers
 /**
  * Contrutores e Destrutores
  */
-CBuffers::CBuffers()
+CIndicators::CIndicators()
 {
 }
-CBuffers::~CBuffers()
+CIndicators::~CIndicators()
 {
 }
 
 /**
  * Métodos de sincronização
  */
-void CBuffers::OnStart()
+void CIndicators::OnStart()
 {
   if(ValidSweep())
     {
       ENUM_TABLE_GET_TYPE getType = 0;
-      CBuffer* getRef             = NULL;
+      CIndicator* getRef             = NULL;
       while((getType = buffers.GetNextValue(getRef)) != TABLE_GET_TYPE_END)
         {
           if(getType == TABLE_GET_TYPE_GET)
@@ -64,12 +64,12 @@ void CBuffers::OnStart()
         }
     }
 }
-void CBuffers::OnStop()
+void CIndicators::OnStop()
 {
   if(ValidSweep())
     {
       ENUM_TABLE_GET_TYPE getType = 0;
-      CBuffer* getRef             = NULL;
+      CIndicator* getRef             = NULL;
       while((getType = buffers.GetNextValue(getRef)) != TABLE_GET_TYPE_END)
         {
           if(getType == TABLE_GET_TYPE_GET)
@@ -79,13 +79,13 @@ void CBuffers::OnStop()
         }
     }
 }
-void CBuffers::OnCalculate(const int total, const int pos, const datetime& time[], const double& open[], const double& high[], const double& low[], const double& close[], const long& tick_volume[],
+void CIndicators::OnCalculate(const int total, const int pos, const datetime& time[], const double& open[], const double& high[], const double& low[], const double& close[], const long& tick_volume[],
                            const long& volume[], const int& spread[])
 {
   if(ValidSweep())
     {
       ENUM_TABLE_GET_TYPE getType = 0;
-      CBuffer* getRef             = NULL;
+      CIndicator* getRef             = NULL;
       while((getType = buffers.GetNextValue(getRef)) != TABLE_GET_TYPE_END)
         {
           if(getType == TABLE_GET_TYPE_GET)
@@ -99,7 +99,7 @@ void CBuffers::OnCalculate(const int total, const int pos, const datetime& time[
 /**
  * Verificações
  */
-bool CBuffers::ValidSweep()
+bool CIndicators::ValidSweep()
 {
   if(buffers.GetSize() > 0)
     {
