@@ -7,6 +7,7 @@
 #ifndef ZIGZAGINDICATOR_INCLUDED
 #define ZIGZAGINDICATOR_INCLUDED
 
+#include "../Databases/Tables/RotaryTable.mqh"
 #include "Base/Buffer.mqh"
 #include "Base/Indicator.mqh"
 
@@ -16,10 +17,11 @@ class CZigZagIndicator : public CIndicator
   private:
     // Properties
     int _period;
+    int _topBottomTotal;
     
     // Variables
-    double tops[];  //Trocar para a tabela
-    double funds[]; //Trocar para a tabela
+    CRotaryTable<double> tableTop;
+    CRotaryTable<double> tableBottom;
     
     // Array buffers
     CBuffer bZigZagLine1;
@@ -27,7 +29,7 @@ class CZigZagIndicator : public CIndicator
     CBuffer bZigZagLineColor;
     CBuffer bZigZagPrice;
     CBuffer bZigZagTop;
-    CBuffer bZigZagFound;
+    CBuffer bZigZagBottom;
     CBuffer bZigZagDirection;
     CBuffer bZigZagDirectionDynamic;
     CBuffer bZigZagLastHighBar;
@@ -46,17 +48,21 @@ class CZigZagIndicator : public CIndicator
     // Properties
     //- GET
     int GetPeriod() { return (_period); };
+    int GetTopBottomTotal() { return (_topBottomTotal); };
     
     //- SET
     void SetPeriod(int v) { _period = v; };
+    void SetTopBottomTotal(int v) { _topBottomTotal = v; };
     
     // References
+    CRotaryTable<double>* GetTableTop() { return (GetPointer(tableTop)); };
+    CRotaryTable<double>* GetTableBottom() { return (GetPointer(tableBottom)); };
     CBuffer* GetZigZagLine1Buffer() { return (GetPointer(bZigZagLine1)); };
     CBuffer* GetZigZagLine2Buffer() { return (GetPointer(bZigZagLine2)); };
     CBuffer* GetZigZagLineColorBuffer() { return (GetPointer(bZigZagLineColor)); };
     CBuffer* GetZigZagPriceBuffer() { return (GetPointer(bZigZagPrice)); };
     CBuffer* GetZigZagTopBuffer() { return (GetPointer(bZigZagTop)); };
-    CBuffer* GetZigZagFoundBuffer() { return (GetPointer(bZigZagFound)); };
+    CBuffer* GetZigZagFoundBuffer() { return (GetPointer(bZigZagBottom)); };
     CBuffer* GetZigZagDirectionBuffer() { return (GetPointer(bZigZagDirection)); };
     CBuffer* GetZigZagDirectionDynamicBuffer() { return (GetPointer(bZigZagDirectionDynamic)); };
     CBuffer* GetZigZagLastHighBarBuffer() { return (GetPointer(bZigZagLastHighBar)); };
@@ -64,8 +70,8 @@ class CZigZagIndicator : public CIndicator
   
   private:
     void bZigZagDirectionCalculate(int i, const double &high[], const double &low[]);
-    void TopAndBottomUpdate(int pos, int type, double price, double &array[], CBuffer* bufferRef);
-    void TopAndBottomUpdateBuffer(int pos, double &array[], CBuffer* bufferRef);
+    void TopAndBottomUpdate(int pos, int type, double price, CRotaryTable<double>* table, CBuffer* bufferRef);
+    void TopAndBottomUpdateBuffer(int pos, CRotaryTable<double>* table, CBuffer* bufferRef);
     
 };
 // clang-format on
@@ -74,17 +80,14 @@ class CZigZagIndicator : public CIndicator
  * Contrutores e Destrutores
  */
 CZigZagIndicator::CZigZagIndicator()
-    : _period(12)
+    : _period(12),
+      _topBottomTotal(0),
+      tableTop(0),
+      tableBottom(0)
 {
-  ArrayResize(tops, 20);
-  ArrayInitialize(tops, 0.0);
-  ArrayResize(funds, 20);
-  ArrayInitialize(funds, 0.0);
 }
 CZigZagIndicator::~CZigZagIndicator()
 {
-  ArrayFree(tops);
-  ArrayFree(funds);
 }
 
 /**
@@ -92,20 +95,23 @@ CZigZagIndicator::~CZigZagIndicator()
  */
 void CZigZagIndicator::OnStart()
 {
+  tableTop.SetMaxSize(_topBottomTotal);
+  tableBottom.SetMaxSize(_topBottomTotal);
+  
   // Buffers de desenho
   bZigZagLine1.SetBufferParams(0, INDICATOR_DATA);
   bZigZagLine2.SetBufferParams(1, INDICATOR_DATA);
   bZigZagLineColor.SetBufferParams(2, INDICATOR_COLOR_INDEX);
 
   // Buffers de cálculos
-  bZigZagPrice.SetBufferParams(3, INDICATOR_CALCULATIONS);
-  bZigZagTop.SetBufferParams(4, INDICATOR_CALCULATIONS);
-  bZigZagFound.SetBufferParams(5, INDICATOR_CALCULATIONS);
-  bZigZagDirection.SetBufferParams(6, INDICATOR_CALCULATIONS);
-  bZigZagDirectionDynamic.SetBufferParams(7, INDICATOR_CALCULATIONS);
+  bZigZagPrice.SetBufferParams(5, INDICATOR_CALCULATIONS);
+  bZigZagTop.SetBufferParams(6, INDICATOR_CALCULATIONS);
+  bZigZagBottom.SetBufferParams(7, INDICATOR_CALCULATIONS);
+  bZigZagDirection.SetBufferParams(8, INDICATOR_CALCULATIONS);
+  bZigZagDirectionDynamic.SetBufferParams(9, INDICATOR_CALCULATIONS);
   //
-  bZigZagLastHighBar.SetBufferParams(8, INDICATOR_CALCULATIONS);
-  bZigZagLastLowBar.SetBufferParams(9, INDICATOR_CALCULATIONS);
+  bZigZagLastHighBar.SetBufferParams(10, INDICATOR_CALCULATIONS);
+  bZigZagLastLowBar.SetBufferParams(11, INDICATOR_CALCULATIONS);
 }
 void CZigZagIndicator::OnStop()
 {
@@ -147,44 +153,52 @@ void CZigZagIndicator::OnCalculate(const int total, const int pos, const datetim
   if(oldTurn != i)
     {
       oldTurn = i;
-      TopAndBottomUpdateBuffer(i, tops, GetPointer(bZigZagTop));
-      TopAndBottomUpdateBuffer(i, funds, GetPointer(bZigZagFound));
+      TopAndBottomUpdateBuffer(i, GetTableTop(), GetPointer(bZigZagTop));
+      TopAndBottomUpdateBuffer(i, GetTableBottom(), GetPointer(bZigZagBottom));
     }
 }
 
 /*
  * Atualiza os buffers de topos e fundos
  */
-void CZigZagIndicator::TopAndBottomUpdate(int pos, int type, double price, double& array[], CBuffer* bufferRef)
+void CZigZagIndicator::TopAndBottomUpdate(int pos, int type, double price, CRotaryTable<double>* table, CBuffer* bufferRef)
 {
   static int lastType = 1;
-  int size            = ArraySize(array);
+  int size            = table.GetSize();
   if(lastType == type)
     {
-      array[size - 1] = price;
+      int lastIndex = table.GetLastAddIndex();
+      table.Replace(lastIndex, price);
       bufferRef.SetValue(pos, price);
     }
   else
     {
       lastType = type;
-      ArrayRemove(array, 0, 1);
-      ArrayResize(array, size);
-      array[size - 1] = price;
+      table.Add(price);
     }
 }
 
-void CZigZagIndicator::TopAndBottomUpdateBuffer(int pos, double& array[], CBuffer* bufferRef)
+void CZigZagIndicator::TopAndBottomUpdateBuffer(int pos, CRotaryTable<double>* table, CBuffer* bufferRef)
 {
-  int size          = ArraySize(array);
-  double arrayValue = 0;
-  int getValue      = 0;
-  for(int i = size - 1; i >= 0; i--)
+  int size = table.GetSize();
+  if(size > 0)
     {
-      getValue   = size - (i + 1);
-      arrayValue = array[getValue];
-      if(pos - i >= 0)
+      table.ResetSequenceCount();
+      ENUM_TABLE_GET_TYPE getType = 0;
+      double getValue             = 0;
+      int rotaryIndex             = 0;
+      int index                   = 0;
+      while((getType = table.GetPreviousValue(getValue)) != TABLE_GET_TYPE_END)
         {
-          bufferRef.SetValue(pos - i, arrayValue);
+          if(getType == TABLE_GET_TYPE_GET)
+            {
+              rotaryIndex = table.GetRotaryIndex(table.GetSelectIndex());
+              index       = pos - rotaryIndex;
+              if(index >= 0)
+                {
+                  bufferRef.SetValue(index, getValue);
+                }
+            }
         }
     }
 }
@@ -211,14 +225,14 @@ void CZigZagIndicator::bZigZagDirectionCalculate(int i, const double& high[], co
               bZigZagLine1.SetValue(i, high[i]);
               bZigZagLastHighBar.SetValue(i, i);
               bZigZagLineColor.SetValue(i, 0);
-              TopAndBottomUpdate(i, 1, high[i], tops, GetPointer(bZigZagTop));
+              TopAndBottomUpdate(i, 1, high[i], GetTableTop(), GetPointer(bZigZagTop));
             }
           break;
         case -1:
           bZigZagLine1.SetValue(i, high[i]);
           bZigZagLastHighBar.SetValue(i, i);
           bZigZagLineColor.SetValue(i, 0);
-          TopAndBottomUpdate(i, 1, high[i], tops, GetPointer(bZigZagTop));
+          TopAndBottomUpdate(i, 1, high[i], GetTableTop(), GetPointer(bZigZagTop));
           break;
         }
       break;
@@ -232,14 +246,14 @@ void CZigZagIndicator::bZigZagDirectionCalculate(int i, const double& high[], co
               bZigZagLine2.SetValue(i, low[i]);
               bZigZagLastLowBar.SetValue(i, i);
               bZigZagLineColor.SetValue(i, 1);
-              TopAndBottomUpdate(i, -1, low[i], funds, GetPointer(bZigZagFound));
+              TopAndBottomUpdate(i, -1, low[i], GetTableBottom(), GetPointer(bZigZagBottom));
             }
           break;
         case 1:
           bZigZagLine2.SetValue(i, low[i]);
           bZigZagLastLowBar.SetValue(i, i);
           bZigZagLineColor.SetValue(i, 1);
-          TopAndBottomUpdate(i, -1, low[i], funds, GetPointer(bZigZagFound));
+          TopAndBottomUpdate(i, -1, low[i], GetTableBottom(), GetPointer(bZigZagBottom));
           break;
         }
       break;

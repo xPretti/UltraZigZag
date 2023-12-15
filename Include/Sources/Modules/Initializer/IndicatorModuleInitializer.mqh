@@ -44,6 +44,11 @@ void CIndicatorModuleInitializer::Initializer()
 {
   CZigZagIndicator* zigZag = indicatorManager.GetZigZagIndicator();
   zigZag.SetPeriod(inputPeriod);
+  zigZag.SetTopBottomTotal(inputTopBottomTotal);
+  
+  CZigZagAverageIndicator* zigZagAverage = indicatorManager.GetZigZagAverageIndicator();
+  zigZagAverage.SetEnabledZigZagAverage((bool)inputEnableTopBottomAverage);
+  zigZagAverage.SetTopBottomAveragePeriod(inputTopBottomAveragePeriod);
 }
 
 #endif /* INDICATORMODULEINITIALIZER_INCLUDED */

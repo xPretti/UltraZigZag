@@ -7,14 +7,20 @@
  * Propiedades do indicador
  */
 #property indicator_chart_window
-#property indicator_buffers 10
-#property indicator_plots   1
+#property indicator_buffers 12
+#property indicator_plots   2
 // cores
 #property indicator_label1  "ZigZag Line"
 #property indicator_type1   DRAW_COLOR_ZIGZAG
 #property indicator_color1  clrMediumSpringGreen, clrYellow
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  2
+//
+#property indicator_label2  "Median Line"
+#property indicator_type2   DRAW_COLOR_LINE
+#property indicator_color2  clrLime, clrTomato, clrWhite
+#property indicator_style2  STYLE_SOLID
+#property indicator_width2  2
 
 // Bibliotecas
 #include "Include/Sources/Main.mqh"

@@ -12,6 +12,7 @@
 
 // Indicators
 #include "ZigZagIndicator.mqh"
+#include "ZigZagAverageIndicator.mqh"
 
 // clang-format off
 class CIndicatorManager : public CIndicators
@@ -19,6 +20,7 @@ class CIndicatorManager : public CIndicators
   private:
     // Indicators
     CZigZagIndicator zigZag;
+    CZigZagAverageIndicator zigZagAverage;
 
   public:
     CIndicatorManager();
@@ -29,6 +31,7 @@ class CIndicatorManager : public CIndicators
     
     // References
     CZigZagIndicator* GetZigZagIndicator() { return (GetPointer(zigZag)); }; 
+    CZigZagAverageIndicator* GetZigZagAverageIndicator() { return (GetPointer(zigZagAverage)); }; 
   
   private:
     void IndicatorConfig();
@@ -39,9 +42,10 @@ class CIndicatorManager : public CIndicators
 /**
  * Contrutores e Destrutores
  */
-CIndicatorManager::CIndicatorManager()
+CIndicatorManager::CIndicatorManager() : zigZagAverage(GetZigZagIndicator())
 {
   Add(GetZigZagIndicator());
+  Add(GetZigZagAverageIndicator());
 }
 CIndicatorManager::~CIndicatorManager()
 {
@@ -62,7 +66,7 @@ void CIndicatorManager::OnStart()
 void CIndicatorManager::IndicatorConfig()
 {
   // Configs loader
-  string indicatorName = StringFormat("UltraZigZag(%d)", zigZag.GetPeriod());
+  string indicatorName = StringFormat("UltraZigZag(%d, %s)", zigZag.GetPeriod(), zigZagAverage.GetEnabledZigZagAverage() ? "true" : "false");
   IndicatorSetString(INDICATOR_SHORTNAME, indicatorName);
 }
 
