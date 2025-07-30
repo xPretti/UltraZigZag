@@ -42,12 +42,14 @@ class CRotaryModel : public C
     {
       C::ResetSequenceCount();
       _currentIndex = -1;
-      _fistIndex    = -2;
+      _fistIndex = -2;
     };
 
   protected:
     void IndexIncrease();
     void IndexDecrease();
+    bool IndexIncrease(int& value);
+    bool IndexDecrease(int& value);
     bool IndexIncrease(uint& value);
     bool IndexDecrease(uint& value);
     bool IndexFixer(int index);
@@ -62,7 +64,7 @@ template<typename C, typename V>
 CRotaryModel::CRotaryModel(uint maxSize)
 {
   _startIndex = 0;
-  _maxSize   = maxSize;
+  _maxSize = maxSize;
 }
 template<typename C, typename V>
 CRotaryModel::~CRotaryModel()
@@ -141,10 +143,10 @@ int CRotaryModel::GetRotaryIndex(int normalIndex)
   if(normalIndex >= 0 && normalIndex < GetSize())
     {
       int intStartIndex = int(_startIndex);
-      int normalPos     = normalIndex + 1;
-      int size          = GetSize();
-      int space         = size - intStartIndex;
-      int goBack        = normalPos - space;
+      int normalPos = normalIndex + 1;
+      int size = GetSize();
+      int space = size - intStartIndex;
+      int goBack = normalPos - space;
       if(goBack <= 0)
         {
           return (intStartIndex + normalIndex);
@@ -195,6 +197,25 @@ void CRotaryModel::IndexDecrease()
   IndexDecrease(_startIndex);
 }
 template<typename C, typename V>
+bool CRotaryModel::IndexIncrease(int& value)
+{
+  value++;
+  if(value >= GetSize())
+    {
+      value = 0;
+      return (true);
+    }
+  return (false);
+}
+template<typename C, typename V>
+bool CRotaryModel::IndexDecrease(int& value)
+{
+  int lastIndex = GetSize() - 1;
+  int fixIndex = lastIndex >= 0 ? lastIndex : 0;
+  value = value == 0 ? fixIndex : value - 1;
+  return (value == fixIndex);
+}
+template<typename C, typename V>
 bool CRotaryModel::IndexIncrease(uint& value)
 {
   value++;
@@ -209,8 +230,8 @@ template<typename C, typename V>
 bool CRotaryModel::IndexDecrease(uint& value)
 {
   int lastIndex = GetSize() - 1;
-  int fixIndex  = lastIndex >= 0 ? lastIndex : 0;
-  value         = value == 0 ? fixIndex : value - 1;
+  int fixIndex = lastIndex >= 0 ? lastIndex : 0;
+  value = value == 0 ? fixIndex : value - 1;
   return (value == fixIndex);
 }
 
@@ -243,6 +264,5 @@ bool CRotaryModel::IndexFixerSmaller(int index)
     }
   return (false);
 }
-
 
 #endif /* ROTARYMODEL_INCLUDED */
